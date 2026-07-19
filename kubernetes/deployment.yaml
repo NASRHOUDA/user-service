@@ -45,7 +45,7 @@ spec:
             app: user-service
       containers:
       - name: user-service
-        image: houdanasr/user-service:10
+        image: houdanasr/user-service:11
         ports:
         - containerPort: 5002
         env:
