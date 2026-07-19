@@ -247,20 +247,20 @@ stage('Trivy Image Scan') {
         }
 
         stage('Flux Reconciliation') {
-            steps {
-                sh '''
-                    sleep 30
-                    flux reconcile source git flux-system --timeout=3m || true
-                    flux reconcile kustomization microservices --timeout=3m || true
-                    sleep 20
-                    echo "📊 Pods:"
-                    kubectl get pods -n microservices -l app=user-service || true
-                    echo "✅ Déploiement Flux CD complété"
-                '''
-            }
-        }
-
+    steps {
+        sh '''
+            sleep 30
+            flux reconcile source git flux-system --timeout=3m || true
+            flux reconcile kustomization user-service --timeout=3m || true
+            sleep 20
+            echo "📊 Pods:"
+            kubectl get pods -n microservices -l app=user-service || true
+            echo "✅ Déploiement Flux CD complété"
+        '''
     }
+}
+
+    
 
     post {
         success { echo '✅ Pipeline user-service réussi !' }
