@@ -1,0 +1,26 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: user-service
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/NASRHOUDA/user-service
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: user-service
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: user-service
+  path: ./kubernetes
+  prune: true
+  targetNamespace: taskmanager
+  wait: true
+  timeout: 3m
