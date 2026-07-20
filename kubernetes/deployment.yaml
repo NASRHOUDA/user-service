@@ -80,6 +80,11 @@ spec:
             secretKeyRef:
               name: user-service-secrets
               key: JWT_SECRET
+        - name: INTERNAL_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: user-service-secrets
+              key: INTERNAL_API_KEY
         resources:
           requests:
             memory: "192Mi"
