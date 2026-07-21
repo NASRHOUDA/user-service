@@ -120,13 +120,13 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(container_cpu_usage_seconds_total{namespace=\"microservices\", pod=~\"user-service.*\"}[5m]) * 100",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"microservices\", pod=~\"user-service.*\", container!=\"\", container!=\"POD\"}[5m])) by (pod) * 100",
               "legendFormat": "{{pod}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "user-service \u2014 CPU (%)",
+          "title": "user-service — CPU (%)",
           "type": "timeseries"
         },
         {
@@ -215,13 +215,13 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "container_memory_usage_bytes{namespace=\"microservices\", pod=~\"user-service.*\"} / 1024 / 1024",
+              "expr": "sum(container_memory_working_set_bytes{namespace=\"microservices\", pod=~\"user-service.*\", container!=\"\", container!=\"POD\"}) by (pod) / 1024 / 1024",
               "legendFormat": "{{pod}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "user-service \u2014 RAM (MB)",
+          "title": "user-service — RAM (MB)",
           "type": "timeseries"
         },
         {
@@ -274,11 +274,7 @@ data:
                 "steps": [
                   {
                     "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
+                    "value": null
                   }
                 ]
               }
@@ -309,13 +305,13 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "sum(rate(user_registrations_total[5m]))",
-              "legendFormat": "inscriptions/s",
+              "expr": "sum(rate(http_request_duration_seconds_count{app=\"user-service\", status_code=~\"5..\"}[5m])) by (route)",
+              "legendFormat": "{{route}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "user-service \u2014 Inscriptions (/s)",
+          "title": "user-service — Erreurs 5xx par route (/s)",
           "type": "timeseries"
         },
         {
@@ -347,7 +343,7 @@ data:
             "overrides": []
           },
           "gridPos": {
-            "h": 4,
+            "h": 6,
             "w": 8,
             "x": 0,
             "y": 7
@@ -374,7 +370,7 @@ data:
               "refId": "A"
             }
           ],
-          "title": "user-service \u2014 Logs erreurs",
+          "title": "user-service — Logs erreurs",
           "type": "stat"
         },
         {
@@ -385,7 +381,41 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "thresholds"
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
               },
               "mappings": [],
               "thresholds": {
@@ -393,54 +423,46 @@ data:
                 "steps": [
                   {
                     "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "orange",
-                    "value": 1
-                  },
-                  {
-                    "color": "red",
-                    "value": 5
+                    "value": null
                   }
                 ]
-              }
+              },
+              "unit": "s"
             },
             "overrides": []
           },
           "gridPos": {
-            "h": 4,
+            "h": 6,
             "w": 8,
             "x": 8,
             "y": 7
           },
           "id": 5,
           "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
             },
-            "textMode": "auto",
-            "wideLayout": true
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "sum(rate(user_profile_updates_total{status=\"error\"}[5m]))",
-              "legendFormat": "erreurs maj profil",
+              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{app=\"user-service\"}[5m])) by (le, route))",
+              "legendFormat": "{{route}}",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "user-service \u2014 Alerte: echecs maj profil",
-          "type": "stat"
+          "title": "user-service — Latence p95 par route",
+          "type": "timeseries"
         },
         {
           "datasource": {
@@ -466,15 +488,16 @@ data:
                   },
                   {
                     "color": "red",
-                    "value": 3
+                    "value": 5
                   }
                 ]
-              }
+              },
+              "unit": "percent"
             },
             "overrides": []
           },
           "gridPos": {
-            "h": 4,
+            "h": 6,
             "w": 8,
             "x": 16,
             "y": 7
@@ -498,13 +521,13 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "sum(rate(user_deletions_total[5m]))",
-              "legendFormat": "suppressions/s",
+              "expr": "100 * sum(rate(http_request_duration_seconds_count{app=\"user-service\", status_code=~\"5..\"}[5m])) / sum(rate(http_request_duration_seconds_count{app=\"user-service\"}[5m]))",
+              "legendFormat": "taux erreur %",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "user-service \u2014 Pic de suppressions de compte",
+          "title": "user-service — Alerte: taux erreur 5xx (%)",
           "type": "stat"
         }
       ],
@@ -527,5 +550,5 @@ data:
       "timezone": "browser",
       "title": "user-service - Metrics & Logs",
       "uid": "user-service-dashboard",
-      "version": 1
+      "version": 2
     }
