@@ -27,3 +27,4 @@ sequelize.authenticate()
     console.error('❌ Database error:', err);
     process.exit(1);
   });
+// test gitleaks hook
