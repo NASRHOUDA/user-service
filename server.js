@@ -28,3 +28,4 @@ sequelize.authenticate()
     process.exit(1);
   });
 // test gitleaks hook
+// test gitleaks hook v2
